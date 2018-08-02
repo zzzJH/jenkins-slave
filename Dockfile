@@ -1,0 +1,45 @@
+FROM centos:7
+MAINTAINER zzzJH
+
+RUN yum -y update && yum -y groupinstall 'Development Tools' && yum -y install \
+    kernel-devel \
+    gcc \
+    libcurl \
+    libcurl-devel \
+    openssl \
+    openssl-devel \
+    pcre-devel \
+    libpcre3-dev \
+    libpcre++-dev \
+    zlib \
+    zlib-devel \
+    zlib1g-dev \
+    libssl-dev \
+    libreadline-dev \
+    libgdbm-dev \
+    wget \
+    tar \
+    && yum clean all
+
+RUN yum -y update && yum install -y \
+    git \
+    ruby \
+    epel-release \
+    java-1.8.0-openjdk.x86_64 \
+    java-1.8.0-openjdk-devel.x86_64 \
+    && yum clean all
+
+RUN yum -y update && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - && yum install -y \
+    nodejs \
+    jq \
+    && yum clean all
+
+ENV HOME /home/jenkins
+RUN groupadd -g 10000 jenkins && useradd -c "Jenkins user" -d $HOME -u 10000 -g 10000 -m jenkins
+RUN mkdir -p /data/static/ /data/titacn/ /var/lib/jenkins/ && chown jenkins:jenkins -R /data/ /var/lib/jenkins/
+RUN npm install -g uglify-js bower grunt-cli clean-css-cli
+RUN ln -s /usr/bin/uglifyjs /usr/local/bin/uglifyjs && ln -s /usr/bin/bower /usr/local/bin/bower && ln -s /usr/bin/grunt/ /usr/local/bin/grunt && ln -s /usr/bin/cleancss /usr/local/bin/cleancss
+
+USER jenkins
+RUN mkdir -p /home/jenkins/workspace/ /var/lib/jenkins/userContent/
+RUN gem install compass -v 0.12.6 
